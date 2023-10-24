@@ -24,12 +24,7 @@ target_include_directories(${PROJECT_NAME}
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 
-include_directories("/usr/include/fmod/")
-set(FMOD_LIBRARIES "/usr/lib/libfmod.so")
-
 target_link_libraries(${PROJECT_NAME}
   ${SDL2_LIBRARIES}
   SDL2_image
-  ${FMOD_LIBRARIES}
-  box2d
 )
