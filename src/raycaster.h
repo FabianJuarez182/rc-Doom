@@ -127,10 +127,29 @@ public:
 
       SDL_RenderDrawPoint(renderer, x, y);
     }
-  } 
- 
+  }
+
+  bool checkPlayerWin() {
+    int playerX = static_cast<int>(player.x / BLOCK);
+    int playerY = static_cast<int>(player.y / BLOCK);
+
+    if (playerX >= 0 && playerX < WIDTH && playerY >= 0 && playerY < HEIGHT) {
+      char mapChar = map[playerY][playerX];
+      if (mapChar == 'g' || mapChar == '5') {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  bool checkCollision(int x, int y) {
+      int i = x / BLOCK;
+      int j = y / BLOCK;
+      return map[j][i] != ' ';
+  }
+
   void render() {
-    
     // draw left side of the screen
     
     for (int x = 0; x < SCREEN_WIDTH; x += BLOCK) {
