@@ -53,7 +53,7 @@ int main() {
   r.load_map("assets/map.txt");
 
   // Load and play background music
-    Mix_Music* backgroundMusic = Mix_LoadMUS("assets/8-bit-halloween-story-166454.mp3");
+    Mix_Music* backgroundMusic = Mix_LoadMUS("assets/ZombiesTheme.mp3");
   // Cargar efectos de sonido
     walkForwardSound = Mix_LoadWAV("assets/walk_forward.mp3");
     walkBackwardSound = Mix_LoadWAV("assets/walk_forward.mp3");
@@ -85,16 +85,16 @@ int main() {
             r.player.a -= 3.14/24;
             break;
           case SDLK_UP:
+            Mix_PlayChannel(-1, walkForwardSound, 0); // Reproduce una vez
             r.player.x += speed * cos(r.player.a);
             r.player.y += speed * sin(r.player.a);
-            Mix_PlayChannel(-1, walkForwardSound, 0); // Reproduce una vez
             break;
           case SDLK_DOWN:
+            Mix_PlayChannel(-1, walkBackwardSound, 0); // Reproduce una vez
             r.player.x -= speed * cos(r.player.a);
             r.player.y -= speed * sin(r.player.a);
-            Mix_PlayChannel(-1, walkBackwardSound, 0); // Reproduce una vez
             break;
-           default:
+            default:
             break;
         }
       }
