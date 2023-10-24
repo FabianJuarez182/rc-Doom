@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 #include <SDL_events.h>
 #include <SDL_render.h>
 #include <SDL_video.h>
@@ -10,6 +11,10 @@
 
 SDL_Window* window;
 SDL_Renderer* renderer;
+
+// Declarar variables para los efectos de sonido
+Mix_Chunk* walkForwardSound = nullptr;
+Mix_Chunk* walkBackwardSound = nullptr;
 
 void clear() {
   SDL_SetRenderDrawColor(renderer, 56, 56, 56, 255);
@@ -31,7 +36,8 @@ void draw_floor() {
 int main() {
   print("hello world");
 
-  SDL_Init(SDL_INIT_VIDEO);
+  SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+  Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
   ImageLoader::init();
 
   window = SDL_CreateWindow("DOOM", 0, 0, SCREEN_WIDTH * 2, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
@@ -46,6 +52,21 @@ int main() {
   Raycaster r = { renderer };
   r.load_map("assets/map.txt");
 
+  // Load and play background music
+    Mix_Music* backgroundMusic = Mix_LoadMUS("assets/8-bit-halloween-story-166454.mp3");
+  // Cargar efectos de sonido
+    walkForwardSound = Mix_LoadWAV("assets/walk_forward.mp3");
+    walkBackwardSound = Mix_LoadWAV("assets/walk_forward.mp3");
+
+    if (backgroundMusic) {
+        Mix_PlayMusic(backgroundMusic, -1); // -1 means loop indefinitely
+    } else {
+        printf("Failed to load background music: %s\n", Mix_GetError());
+    }
+    // Verificar si se cargaron los efectos de sonido correctamente
+    if (!walkForwardSound || !walkBackwardSound) {
+        printf("Failed to load sound effects: %s\n", Mix_GetError());
+    }
   bool running = true;
   int speed = 10;
   while(running) {
@@ -66,10 +87,12 @@ int main() {
           case SDLK_UP:
             r.player.x += speed * cos(r.player.a);
             r.player.y += speed * sin(r.player.a);
+            Mix_PlayChannel(-1, walkForwardSound, 0); // Reproduce una vez
             break;
           case SDLK_DOWN:
             r.player.x -= speed * cos(r.player.a);
             r.player.y -= speed * sin(r.player.a);
+            Mix_PlayChannel(-1, walkBackwardSound, 0); // Reproduce una vez
             break;
            default:
             break;
@@ -86,7 +109,19 @@ int main() {
 
     SDL_RenderPresent(renderer);
   }
+    if (walkForwardSound) {
+        Mix_FreeChunk(walkForwardSound);
+        walkForwardSound = nullptr;
+    }
 
-  SDL_DestroyWindow(window);
-  SDL_Quit();
+    if (walkBackwardSound) {
+        Mix_FreeChunk(walkBackwardSound);
+        walkBackwardSound = nullptr;
+    }
+    Mix_FreeMusic(backgroundMusic);
+    Mix_CloseAudio();
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+
+    return 0;
 }
