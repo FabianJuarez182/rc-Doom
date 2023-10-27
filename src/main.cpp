@@ -74,8 +74,8 @@ struct Level {
 
 // Crea una lista de niveles disponibles
 std::vector<Level> levels = {
-    { "assets/map_1.txt", "Nivel 1" },
-    { "assets/map_2.txt", "Nivel 2" },
+    { "assets/map_1.txt", "Level 1" },
+    { "assets/map_2.txt", "Level 2" },
     // Agrega más niveles según sea necesario
 };
 
@@ -235,6 +235,8 @@ int main() {
 
   bool running = true;
   int speed = 10;
+  bool mouseCaptured = false;
+  int previousMouseX = 0;
 
   while(running) {
     SDL_Event event;
@@ -242,6 +244,36 @@ int main() {
       if (event.type == SDL_QUIT) {
         running = false;
         break;
+      }
+
+      if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
+          mouseCaptured = true;
+          previousMouseX = event.button.x;
+          vprint(previousMouseX);
+      }
+
+      if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
+          mouseCaptured = false;
+      }
+
+      if (mouseCaptured && event.type == SDL_MOUSEMOTION) {
+          int mouseX = event.motion.x;
+          vprint(mouseX);
+
+          // Calcula la diferencia entre la posición actual del mouse y el centro
+          int deltaX = mouseX - previousMouseX;
+
+          // Ajusta la velocidad de rotación según tus preferencias
+          float rotationSpeed = 0.00005f;
+
+          vprint(deltaX);
+
+          // Limita la rotación para que no exceda el valor máximo
+          if (deltaX < 0) {
+              r.player.a -= 3.14/24;
+          } else{
+              r.player.a += 3.14/24;
+          }
       }
       if (event.type == SDL_KEYDOWN) {
         switch(event.key.keysym.sym ){
