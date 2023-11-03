@@ -198,11 +198,6 @@ public:
       Impact impact = cast_ray(a);
       float d = impact.d;
       Color c = Color(255, 0, 0);
-
-      if (checkPlayerWin()) {
-        print("you won");
-        exit(1);
-      }
       int x = i;
       float h = static_cast<float>(SCREEN_HEIGHT)/static_cast<float>(d) * static_cast<float>(scale);
       draw_stake(x, h, impact);

@@ -17,6 +17,7 @@ bool playerWon = false;
 // Declarar variables para los efectos de sonido
 Mix_Chunk* walkForwardSound = nullptr;
 Mix_Chunk* walkBackwardSound = nullptr;
+Mix_Chunk* WinSound = nullptr;
 
 void clear() {
   SDL_SetRenderDrawColor(renderer, 56, 56, 56, 255);
@@ -60,10 +61,13 @@ void renderVictoryScreen() {
 
   // Refresca la ventana
   SDL_RenderPresent(renderer);
+  // Espera 5 segundos
+  SDL_Delay(5000);
 
-  // Limpia la memoria
+  // Cierra la ventana
   SDL_DestroyTexture(victoryTexture);
   SDL_FreeSurface(victoryImage);
+  SDL_Quit();
 }
 
 // Define una estructura para representar un nivel
@@ -222,6 +226,7 @@ int main() {
   // Cargar efectos de sonido
     walkForwardSound = Mix_LoadWAV("assets/walk_forward.mp3");
     walkBackwardSound = Mix_LoadWAV("assets/walk_forward.mp3");
+    WinSound = Mix_LoadWAV("assets/Zombies.mp3");
 
     if (backgroundMusic) {
         Mix_PlayMusic(backgroundMusic, -1); // -1 means loop indefinitely
@@ -283,8 +288,8 @@ int main() {
             int nextX = r.player.x + speed * cos(r.player.a);
             int nextY = r.player.y + speed * sin(r.player.a);
             if (r.checkPlayerWin()) {
+                Mix_PlayChannel(-1, WinSound, 0);
                 playerWon = true;
-                print("You won!");
             }
             if (!r.checkCollision(nextX, nextY)) {
                 Mix_PlayChannel(-1, walkForwardSound, 0);
@@ -298,8 +303,8 @@ int main() {
             int nextX = r.player.x - speed * cos(r.player.a);
             int nextY = r.player.y - speed * sin(r.player.a);
             if (r.checkPlayerWin()) {
+                Mix_PlayChannel(-1, WinSound, 0);
                 playerWon = true;
-                print("You won!");
             }
             if (!r.checkCollision(nextX, nextY)) {
                 Mix_PlayChannel(-1, walkBackwardSound, 0);
@@ -319,11 +324,10 @@ int main() {
 
     if (playerWon) {
         renderVictoryScreen();
+
     } else {
         r.render(); // Renderiza la escena del juego normal
     }
-
-    r.render();
 
     // render
 
