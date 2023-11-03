@@ -183,7 +183,10 @@ int showMainMenu(SDL_Renderer* renderer) {
     return (selectedOption == quitOption) ? -1 : selectedOption; // Devolver -1 si se selecciona "Salir"
 }
 
-
+void draw_ui(){
+    int size = 128;
+    ImageLoader::render(renderer, "p",  SCREEN_WIDTH/2.0f - size/2.0f, SCREEN_HEIGHT - size, size);
+}
 
 int main() {
   print("hello world");
@@ -203,6 +206,7 @@ int main() {
   ImageLoader::loadImage("|", "assets/wall2.png");
   ImageLoader::loadImage("*", "assets/wall4.png");
   ImageLoader::loadImage("g", "assets/wall5.png");
+  ImageLoader::loadImage("p", "assets/Player.png");
 
     // Inicializa las fuentes TrueType (TTF) de SDL
     if (TTF_Init() == -1) {
@@ -242,6 +246,36 @@ int main() {
   int speed = 10;
   bool mouseCaptured = false;
   int previousMouseX = 0;
+  SDL_Rect playerRect;
+
+  bool isShooting = false;
+  std::vector<SDL_Texture*> shootingFrames;  // Vector para almacenar las texturas de la animación de disparo
+
+    for (int i = 1; i <= 4; ++i) {
+        std::string frameFileName = "assets/shooting_frame_" + std::to_string(i) + ".png";
+
+        // Carga la imagen
+        SDL_Surface* shootingFrameImage = IMG_Load(frameFileName.c_str());
+        if (!shootingFrameImage) {
+            printf("Failed to load shooting frame image %d: %s\n", i, IMG_GetError());
+            // Manejar el error de carga de imagen
+            // ...
+        }
+
+        // Convierte la imagen en una textura
+        SDL_Texture* shootingFrameTexture = SDL_CreateTextureFromSurface(renderer, shootingFrameImage);
+        if (!shootingFrameTexture) {
+            printf("Failed to create texture from shooting frame image %d: %s\n", i, SDL_GetError());
+            // Manejar el error de creación de textura
+            // ...
+        }
+
+        // Libera la superficie de la imagen, ya que ya no la necesitas
+        SDL_FreeSurface(shootingFrameImage);
+
+        // Agrega la textura al vector de texturas de animación
+        shootingFrames.push_back(shootingFrameTexture);
+    }
 
   while(running) {
     SDL_Event event;
@@ -296,7 +330,6 @@ int main() {
                 r.player.x = nextX;
                 r.player.y = nextY;
             }
-
             break;
         }
         case SDLK_DOWN: {
@@ -313,6 +346,12 @@ int main() {
             }
             break;
         }
+        case SDLK_SPACE:{
+            if (!isShooting) {
+                isShooting = true;
+            }
+            break;
+        }
             default:
             break;
         }
@@ -321,12 +360,31 @@ int main() {
 
     clear();
     draw_floor();
-
+    int size = 128;
+    playerRect.x = SCREEN_WIDTH/2.0f - size/2.0f;
+    playerRect.y = SCREEN_HEIGHT - size;
+    playerRect.w = size;
+    playerRect.h = size;
     if (playerWon) {
         renderVictoryScreen();
 
     } else {
         r.render(); // Renderiza la escena del juego normal
+        if (isShooting) {
+            for (size_t i = 0; i < shootingFrames.size(); ++i) {
+                // Renderiza la textura actual de la animación
+                SDL_RenderCopy(renderer, shootingFrames[i], nullptr, &playerRect);  // Ajusta destRect según sea necesario
+
+                // Refresca la ventana después de renderizar cada frame
+                SDL_RenderPresent(renderer);
+
+                // Puedes ajustar el retraso entre frames para controlar la velocidad de la animación
+                SDL_Delay(100);  // Espera 100 milisegundos (ajusta el valor según lo necesites)
+            }
+            isShooting = false;
+        } else {
+        ImageLoader::render(renderer, "p",  SCREEN_WIDTH/2.0f - size/2.0f, SCREEN_HEIGHT - size, size);
+        }
     }
 
     // render
