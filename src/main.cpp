@@ -191,7 +191,7 @@ int main() {
   Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
   ImageLoader::init();
 
-  window = SDL_CreateWindow("DOOM", 0, 0, SCREEN_WIDTH * 2, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+  window = SDL_CreateWindow("DOOM", 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
   ImageLoader::loadImage("+", "assets/wall3.png");
@@ -249,7 +249,6 @@ int main() {
       if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT) {
           mouseCaptured = true;
           previousMouseX = event.button.x;
-          vprint(previousMouseX);
       }
 
       if (event.type == SDL_MOUSEBUTTONUP && event.button.button == SDL_BUTTON_LEFT) {
@@ -258,15 +257,12 @@ int main() {
 
       if (mouseCaptured && event.type == SDL_MOUSEMOTION) {
           int mouseX = event.motion.x;
-          vprint(mouseX);
 
           // Calcula la diferencia entre la posición actual del mouse y el centro
           int deltaX = mouseX - previousMouseX;
 
           // Ajusta la velocidad de rotación según tus preferencias
           float rotationSpeed = 0.00005f;
-
-          vprint(deltaX);
 
           // Limita la rotación para que no exceda el valor máximo
           if (deltaX < 0) {
@@ -286,16 +282,25 @@ int main() {
         case SDLK_UP: {
             int nextX = r.player.x + speed * cos(r.player.a);
             int nextY = r.player.y + speed * sin(r.player.a);
+            if (r.checkPlayerWin()) {
+                playerWon = true;
+                print("You won!");
+            }
             if (!r.checkCollision(nextX, nextY)) {
                 Mix_PlayChannel(-1, walkForwardSound, 0);
                 r.player.x = nextX;
                 r.player.y = nextY;
             }
+
             break;
         }
         case SDLK_DOWN: {
             int nextX = r.player.x - speed * cos(r.player.a);
             int nextY = r.player.y - speed * sin(r.player.a);
+            if (r.checkPlayerWin()) {
+                playerWon = true;
+                print("You won!");
+            }
             if (!r.checkCollision(nextX, nextY)) {
                 Mix_PlayChannel(-1, walkBackwardSound, 0);
                 r.player.x = nextX;
